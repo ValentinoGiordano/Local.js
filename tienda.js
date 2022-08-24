@@ -118,3 +118,34 @@ function comprarButtonClicked() {
 }
 
 localStorage.setItem("MostSells", "MK11");
+
+
+const actualizarCantidadCarrito = () => {
+  let carritoCantidad = document.querySelector('#carrito-cantidad');
+
+  const productosCarrito = cargarProductosStorage();
+  let cantidadProductos = 0;
+
+  productosCarrito.forEach((producto) => {
+    cantidadProductos += producto.cantidad;
+  });
+
+  carritoCantidad.innerHTML = cantidadProductos;
+};
+
+
+const notificacionAgregado = (producto) => {
+  Toastify({
+    text: "Se agregó al carrito:" + "<b>${producto.nombre}</b>",
+    duration: 3000,
+    gravity: 'bottom',
+    position: 'left',
+    stopOnFocus: true,
+    escapeMarkup: false,
+    style: {
+      background: '#333333',
+      border: '1px solid #444444',
+      fontSize: '14px',
+    },
+  }).showToast();
+};

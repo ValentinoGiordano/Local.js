@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
     <title>Tienda</title>
 </head>
 
@@ -152,7 +153,7 @@
                                 Se aumentó correctamente la cantidad
                             </div>
                         </div>
-                        <button class="btn btn-success ml-auto comprarButton" type="button" data-toggle="modal"
+                        <button class="btn btn-success ml-auto comprarButton" id="buy" type="button" data-toggle="modal"
                             data-target="#comprarModal">Comprar</button>
                     </div>
                 </div>
@@ -179,15 +180,10 @@
             </div>
         </div>
     </section>
-
-
-
     <footer class="bg-dark p-3 mt-5">
         <p class="text-center m-0 text-muted">Tienda video juegos</p>
     </footer>
-
-
-
+    </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
         crossorigin="anonymous"></script>
@@ -197,7 +193,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
         crossorigin="anonymous"></script>
-
     <script src="./tienda.js"></script>
+    <script src="./SA.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js" ></script>
 </body>
 </html>
