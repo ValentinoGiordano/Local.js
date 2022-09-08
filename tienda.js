@@ -1,124 +1,196 @@
-const addToShoppingCartButtons = document.querySelectorAll('.addToCart');
-addToShoppingCartButtons.forEach((addToCartButton) => {
-  addToCartButton.addEventListener('click', addToCartClicked);
-});
+const btnCarrito = document.getElementById('btn-carrito');
+const cerrarCarrito = document.getElementById('cerrar-carrito');
+const displayCarrito = document.getElementById('carrito');
 
-const comprarButton = document.querySelector('.comprarButton');
-comprarButton.addEventListener('click', comprarButtonClicked);
+let juego = [
+  {
+    id: 1,
+    nombre: 'Crash Bandicoot Trilogy',
+    precio: 420,
+    imagen: 'crash.jpg',
+  },
+  {
+    id: 2,
+    nombre: 'Counter Strike Global Offensive',
+    precio: 230,
+    imagen: 'csgo.jpg',
+  },
+  {
+    id: 3,
+    nombre: 'Grand Theft Auto V',
+    precio: 900,
+    imagen: 'gta.jpg',
+  },
+  {
+    id: 4,
+    nombre: 'Stumble Guys',
+    precio: 50,
+    imagen: 'guys.jpg',
+  },
+  {
+    id: 5,
+    nombre: 'Mortal Kombat 11',
+    precio: 1400,
+    imagen: 'mk11.jpg',
+  },
+  {
+    id: 6,
+    nombre: 'Rainbow Six Siege',
+    precio: 1000,
+    imagen: 'r6.jpg',
+  },
+];
 
-const shoppingCartItemsContainer = document.querySelector(
-  '.shoppingCartItemsContainer'
-);
+/* INCORPORANDO FETCH LOCAL */
 
-function addToCartClicked(event) {
-  const button = event.target;
-  const item = button.closest('.item');
+localStorage.setItem("juego", JSON.stringify(juego))
+let juegosAlmacenados = JSON.parse(localStorage.getItem("juego"))
+console.log(juegosAlmacenados);
 
-  const itemTitle = item.querySelector('.item-title').textContent;
-  const itemPrice = item.querySelector('.item-price').textContent;
-  const itemImage = item.querySelector('.item-image').src;
-
-  addItemToShoppingCart(itemTitle, itemPrice, itemImage);
-}
-
-function addItemToShoppingCart(itemTitle, itemPrice, itemImage) {
-  const elementsTitle = shoppingCartItemsContainer.getElementsByClassName(
-    'shoppingCartItemTitle'
-  );
-  for (let i = 0; i < elementsTitle.length; i++) {
-    if (elementsTitle[i].innerText === itemTitle) {
-      let elementQuantity = elementsTitle[
-        i
-      ].parentElement.parentElement.parentElement.querySelector(
-        '.shoppingCartItemQuantity'
-      );
-      elementQuantity.value++;
-      $('.toast').toast('show');
-      updateShoppingCartTotal();
-      return;
-    }
+class Juego {
+  constructor(obj) {
+    this.nombre = obj.nombre;
+    this.id = obj.id;
+    this.cantidad = obj.cantidad;
+    this.precio = obj.precio;
+    this.precioIva = this.agregarIva();
   }
 
-  const shoppingCartRow = document.createElement('div');
-  const shoppingCartContent = `
-  <div class="row shoppingCartItem">
-        <div class="col-6">
-            <div class="shopping-cart-item d-flex align-items-center h-100 border-bottom pb-2 pt-3">
-                <img src=${itemImage} class="shopping-cart-image">
-                <h6 class="shopping-cart-item-title shoppingCartItemTitle text-truncate ml-3 mb-0">${itemTitle}</h6>
-            </div>
-        </div>
-        <div class="col-2">
-            <div class="shopping-cart-price d-flex align-items-center h-100 border-bottom pb-2 pt-3">
-                <p class="item-price mb-0 shoppingCartItemPrice">${itemPrice}</p>
-            </div>
-        </div>
-        <div class="col-4">
-            <div
-                class="shopping-cart-quantity d-flex justify-content-between align-items-center h-100 border-bottom pb-2 pt-3">
-                <input class="shopping-cart-quantity-input shoppingCartItemQuantity" type="number"
-                    value="1">
-                <button class="btn btn-danger buttonDelete" type="button">X</button>
-            </div>
-        </div>
-    </div>`;
-  shoppingCartRow.innerHTML = shoppingCartContent;
-  shoppingCartItemsContainer.append(shoppingCartRow);
-
-  shoppingCartRow
-    .querySelector('.buttonDelete')
-    .addEventListener('click', removeShoppingCartItem);
-
-  shoppingCartRow
-    .querySelector('.shoppingCartItemQuantity')
-    .addEventListener('change', quantityChanged);
-
-  updateShoppingCartTotal();
+  agregarIva() {
+    return this.precio + (this.precio * 21) / 100;
+  }
 }
 
-function updateShoppingCartTotal() {
-  let total = 0;
-  const shoppingCartTotal = document.querySelector('.shoppingCartTotal');
+const guardarProductosStorage = () => {
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+};
 
-  const shoppingCartItems = document.querySelectorAll('.shoppingCartItem');
+const cargarProductosStorage = () => {
+  return JSON.parse(localStorage.getItem('carrito')) || [];
+};
 
-  shoppingCartItems.forEach((shoppingCartItem) => {
-    const shoppingCartItemPriceElement = shoppingCartItem.querySelector(
-      '.shoppingCartItemPrice'
-    );
-    const shoppingCartItemPrice = Number(
-      shoppingCartItemPriceElement.textContent.replace('$', '')
-    );
-    const shoppingCartItemQuantityElement = shoppingCartItem.querySelector(
-      '.shoppingCartItemQuantity'
-    );
-    const shoppingCartItemQuantity = Number(
-      shoppingCartItemQuantityElement.value
-    );
-    total = total + shoppingCartItemPrice * shoppingCartItemQuantity;
+const carrito = cargarProductosStorage();
+
+const generarHtmlCatalogo = () => {
+  const inputBusqueda = document.querySelector('.filtros [name="busqueda"]');
+  inputBusqueda.addEventListener('keyup', filtrarJuego);
+
+  let catalogo = document.querySelector('#catalogo');
+
+  juego.forEach((juego) => {
+    let elemento = document.createElement('div');
+    elemento.id = `card-${juego.id}`;
+    elemento.className = 'card';
+    elemento.innerHTML = `
+      <img class="card__img" src="images/${juego.imagen}">
+      <div class="card__info">
+        <p class="card__nombre">${juego.nombre}</p>
+        <p class="card__precio">$${juego.precio}</p>
+      </div>      
+      <button class="card__btn">
+        <span class="material-icons">
+          add_shopping_cart
+        </span>
+      </button>
+      `;
+
+    catalogo.appendChild(elemento);
   });
-  shoppingCartTotal.innerHTML = `${total.toFixed(2)}$`;
-}
+};
 
-function removeShoppingCartItem(event) {
-  const buttonClicked = event.target;
-  buttonClicked.closest('.shoppingCartItem').remove();
-  updateShoppingCartTotal();
-}
+const buscarJuego = (id) => {
+  return juego.find((juego) => juego.id === id);
+};
 
-function quantityChanged(event) {
-  const input = event.target;
-  input.value <= 0 ? (input.value = 1) : null;
-  updateShoppingCartTotal();
-}
+const filtrarJuego = (e) => {
+  let catalogo = document.querySelector('#catalogo');
+  let value = e.target.value;
+  let juegoFiltrados = juego.filter((el) =>
+    el.nombre.toLowerCase().includes(value.toLowerCase())
+  );
 
-function comprarButtonClicked() {
-  shoppingCartItemsContainer.innerHTML = '';
-  updateShoppingCartTotal();
-}
+  catalogo.innerHTML = '';
 
-localStorage.setItem("MostSells", "MK11");
+  if (juegoFiltrados.length === 0) {
+    catalogo.innerHTML = `<h2>No se encontraron productos con la busqueda: "${value}"`;
+  } else {
+    juegoFiltrados.forEach((juego) => {
+      let elemento = document.createElement('div');
+      elemento.id = `card-${juego.id}`;
+      elemento.className = 'card';
+      elemento.innerHTML = `
+        <img class="card__img" src="images/${juego.imagen}">
+        <div class="card__info">
+          <p class="card__nombre">${juego.nombre}</p>
+          <p class="card__precio">$${juego.precio}</p>
+        </div>
+        <button class="card__btn">
+          <span class="material-icons">
+            add_shopping_cart
+          </span>
+        </button>`;
 
+      catalogo.appendChild(elemento);
+    });
+    cargarJuegoCarrito();
+  }
+};
+
+const agregarJuego = (juego) => {
+  if (carrito.some((item) => item.id === juego.id)) {
+    let duplicado = carrito.find((item) => item.id === juego.id);
+    duplicado.cantidad++;
+  } else {
+    juego.cantidad = 1;
+    carrito.push(juego);
+  }
+  notificacionAgregado(juego);
+};
+
+const cargarJuegoCarrito = () => {
+  let cardBtns = document.querySelectorAll('.card__btn');
+
+  cardBtns.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      let itemId = parseInt(e.target.closest('.card').id.slice(5));
+
+      btnCarrito.classList.add('agregado');
+      setTimeout(() => {
+        btnCarrito.classList.remove('agregado');
+      }, 1000);
+
+      agregarJuego(buscarJuego(itemId));
+      guardarProductosStorage();
+      generarHtmlCarrito();
+    });
+  });
+};
+
+const eliminarJuego = (id) => {
+  if (carrito.some((el) => el.id === id)) {
+    if (carrito.find((el) => el.id === id).cantidad === 1) {
+      let posicion = carrito.findIndex((juego) => Juego.id === id);
+      carrito.splice(posicion, 1);
+    } else {
+      carrito.find((el) => el.id === id).cantidad--;
+    }
+  }
+};
+
+const eliminarJuegoCarrito = () => {
+  let deleteBtns = document.querySelectorAll('.juego__eliminar');
+
+  deleteBtns.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      let itemId = parseInt(e.target.closest('.product-container').id.slice(9));
+
+      eliminarJuego(itemId);
+      guardarProductosStorage();
+      generarHtmlCarrito();
+    });
+  });
+  actualizarCantidadCarrito();
+};
 
 const actualizarCantidadCarrito = () => {
   let carritoCantidad = document.querySelector('#carrito-cantidad');
@@ -133,10 +205,9 @@ const actualizarCantidadCarrito = () => {
   carritoCantidad.innerHTML = cantidadProductos;
 };
 
-
 const notificacionAgregado = (producto) => {
   Toastify({
-    text: "Se agregó al carrito:" + "<b>${producto.nombre}</b>",
+    text: `Se agrego al carrito: "<b>${producto.nombre}</b>"`,
     duration: 3000,
     gravity: 'bottom',
     position: 'left',
@@ -149,3 +220,61 @@ const notificacionAgregado = (producto) => {
     },
   }).showToast();
 };
+
+const generarHtmlCarrito = () => {
+  let contenedorCarrito = document.querySelector('.contenedor-carrito');
+  let totalCarrito = document.querySelector('.total-carrito');
+
+  const productosCarrito = cargarProductosStorage();
+
+  if (productosCarrito.length === 0) {
+    contenedorCarrito.innerHTML = 'No hay productos en tu carrito.';
+  } else {
+    contenedorCarrito.innerHTML = '';
+    productosCarrito.forEach((producto) => {
+      let elemento = document.createElement('div');
+      elemento.id = `producto-${producto.id}`;
+      elemento.className = 'product-container';
+      elemento.innerHTML = `
+          <img class="juego__img" src="images/${producto.imagen}">
+          <div class="juego__info">
+            <p class="juego__nombre">${producto.nombre}</p>
+            <p class="juego__precio">$${producto.precio}</p>
+            <p class="juego__cantidad">Cantidad: ${producto.cantidad}</p>
+          </div>
+          <button class="juego__eliminar">&times</button>
+        `;
+      contenedorCarrito.appendChild(elemento);
+    });
+  }
+  let total = 0;
+  let totalIva = 0;
+
+  for (const item of productosCarrito) {
+    let juego = new Juego(item);
+    juego.agregarIva();
+    totalIva += juego.precioIva * juego.cantidad;
+    total += juego.precio * juego.cantidad;
+  }
+
+  totalCarrito.innerHTML = `
+  <span>Precio: $${total.toFixed(2)}</span>
+  <span>Impuesto IVA: $${(totalIva - total).toFixed(2)}</span>
+  <p>Total a pagar: $${totalIva.toFixed(2)}</p>
+  `;
+
+  eliminarJuegoCarrito();
+};
+
+generarHtmlCatalogo();
+generarHtmlCarrito();
+cargarJuegoCarrito();
+
+btnCarrito.addEventListener('click', () => {
+  displayCarrito.classList.add('active');
+});
+
+cerrarCarrito.addEventListener('click', () => {
+  displayCarrito.classList.remove('active');
+});
+
